@@ -16,8 +16,9 @@ import static net.serenitybdd.core.Serenity.setSessionVariable;
 public class RealworldSteps extends BaseSteps {
   private final static String _API_USERS_ = "/api/users/";
   private final static String _API_ARTICLES_ = "/api/articles/";
+  private final static String _API_USER_ = "/api/user/";
   // Find endpoint for API login
-  private final static String _API_USERS_LOGIN_ = null;
+  private final static String _API_USERS_LOGIN_ = "api/users/login";
 
   @Steps
   RealworldSteps realworldSteps;
@@ -28,6 +29,7 @@ public class RealworldSteps extends BaseSteps {
 
     if(map.get("user --> email").toString().equals(RANDOM_EMAIL)){
       String randomEmail = "test_" + new Random().nextInt(999999) + "@testdevlab.com";
+
       map.replace("user --> email", randomEmail);
       setSessionVariable(RANDOM_EMAIL).to(randomEmail);
     }
@@ -58,7 +60,34 @@ public class RealworldSteps extends BaseSteps {
       saveValueInPathToSessionVariable("user --> token", "token");
     }
   }
+  @Step
+  public static void userProfileUpdate(DataTable dataTable) throws IOException {
+    sendRequestWithBodyJson(PUT, _API_USER_, createBody(dataTable));
 
+  }
+  @Step
+  public static void userCreateNewPostArticle(DataTable dataTable) throws IOException {
+    sendRequestWithBodyJson(POST, _API_ARTICLES_, createBody(dataTable));
+  }
+  @Step
+  public static void deletePostArticle() {
+    sendRequest(DELETE, _API_ARTICLES_ + sessionVariableCalled("slug"));
+  }
+  @Step
+  public static void modifyPostArticle(DataTable dataTable) throws IOException {
+    sendRequestWithBodyJson(PUT, _API_ARTICLES_ + sessionVariableCalled("slug"), createBody(dataTable));
+  }
+  @Step
+  public static void addCommentPostArticle(DataTable dataTable) throws IOException {
+    sendRequestWithBodyJson(POST, addCommentEndpoint(sessionVariableCalled("slug")), createBody(dataTable));
+  }
+  @Step
+  public static void deleteCommentPostArticle() throws IOException {
+    sendRequest(
+            DELETE,
+            addCommentEndpoint(sessionVariableCalled("slug"))
+                    + "/" + sessionVariableCalled("comment_id"));
+  }
 
   // Private
 
